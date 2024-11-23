@@ -1,0 +1,8 @@
+gradio
+torch
+diffusers
+transformers
+opencv-python
+uuid
+numpy
+Pillow
