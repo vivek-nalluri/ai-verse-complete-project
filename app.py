@@ -70,7 +70,7 @@ def text_to_description_interface():
 # Main function
 def main():
     with gr.Blocks() as app:
-        gr.Markdown("# Unified Text-to-Image, Text-to-Video, and Text-to-Description Generator")
+        gr.Markdown("# AI-Verse: A Multimodal Generative AI Platform")
         with gr.Tab("Text-to-Image"):
             text_to_image_interface()
         with gr.Tab("Text-to-Video"):

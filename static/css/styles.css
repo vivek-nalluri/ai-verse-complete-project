@@ -9,14 +9,15 @@ body {
     margin: 0;
     color: #333;
     animation: fadeIn 1s ease-in-out;
+    background-image: url(./AI-Verse\ background\ image.jpg);
 }
 
 /* Centered Form Container */
 .form-container {
-    background: #fff;
+    background: rgba(255, 255, 255, 0.8); /* Updated: Semi-transparent white */
     border-radius: 12px;
     padding: 40px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     width: 350px;
     animation: slideIn 0.5s ease-out;
 }
