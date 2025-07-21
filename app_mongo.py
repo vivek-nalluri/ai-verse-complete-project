@@ -1,6 +1,7 @@
 
 # Original imports and code
 import gradio as gr
+import os
 from text_to_image import generate_image
 from text_to_video import generate_video
 from text_to_description import generate_description
@@ -81,13 +82,14 @@ def main():
 
         with gr.Row():
             gr.Markdown("### Logout Section")
-            gr.HTML('<button style="padding:10px 20px; background-color:red; color:white; border:none; border-radius:5px;" onclick="window.location.href=\'http://127.0.0.1:5000/logout\'">Logout</button>')
+            gr.HTML('<button style="padding:10px 20px; background-color:red; color:white; border:none; border-radius:5px;" onclick="window.location.href=\'/logout\'">Logout</button>')
 
     return app
 
 if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 7860))
     gradio_app = main()
-    gradio_app.launch(server_name="127.0.0.1", server_port=7860)
+    gradio_app.launch(server_name="0.0.0.0", server_port=port)
 
 # Logout Flask app using MongoDB
 from flask import Flask, session, redirect
@@ -98,7 +100,7 @@ logout_app = Flask(__name__)
 logout_app.secret_key = "your_secret_key"
 
 def get_db_connection():
-    client = MongoClient("mongodb+srv://vivek94947:Vivek94947@cluster0.f7lxxae.mongodb.net/?retryWrites=true&w=majority")
+    client = MongoClient("mongodb+srv://vivek94947:Vivek9494@cluster0.p9bhhfh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
     return client["user"]
 
 @logout_app.route('/logout')
@@ -109,10 +111,10 @@ def logout():
         session_collection.delete_many({"username": session["username"]})
         session.pop('username', None)
 
-    return redirect('http://127.0.0.1:7860')
+    return redirect('/')
 
 def start_flask():
-    logout_app.run(host="127.0.0.1", port=5000)
+    logout_app.run(host="0.0.0.0", port=5000)
 
 flask_thread = threading.Thread(target=start_flask)
 flask_thread.daemon = True
