@@ -80,7 +80,7 @@ def login():
                 except Exception as e:
                     flash(f"Error launching app.py: {str(e)}", 'danger')
 
-                return redirect('http://localhost:7860')
+                return redirect('https://ai-verse-ithm.onrender.com')
 
             else:
                 flash('Invalid credentials. Please try again.', 'danger')
