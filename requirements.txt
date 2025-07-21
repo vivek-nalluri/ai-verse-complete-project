@@ -6,3 +6,7 @@ opencv-python
 uuid
 numpy
 Pillow
+pymongo
+dnspython
+werkzeug
+flask
