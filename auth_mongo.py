@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
-from flask_mysqldb import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
+from pymongo import MongoClient
 import subprocess
 import sys
 import os
@@ -8,13 +8,10 @@ import os
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
 
-# MySQL Configuration
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'  # Change to your MySQL username
-app.config['MYSQL_PASSWORD'] = 'Vivek94947@'  # Change to your MySQL password
-app.config['MYSQL_DB'] = 'ai_verse_database'
-
-mysql = MySQL(app)
+# MongoDB Atlas Configuration
+client = MongoClient("mongodb+srv://vivek94947:Vivek9494@cluster0.p9bhhfh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+db = client['ai_verse_db']  # database name
+users_collection = db['users']  # collection name
 
 @app.route('/')
 def home():
@@ -29,7 +26,6 @@ def register():
         phone = request.form['phone']
         full_name = request.form['full_name']
 
-        # Ensure all fields are valid
         if not username or not password or not email or not full_name:
             flash('All fields except phone are required!', 'danger')
             return render_template('register.html')
@@ -37,22 +33,24 @@ def register():
         password_hash = generate_password_hash(password)
 
         try:
-            cursor = mysql.connection.cursor()
-            cursor.execute(
-                '''
-                INSERT INTO users (username, password, email, phone, full_name)
-                VALUES (%s, %s, %s, %s, %s)
-                ''',
-                (username, password_hash, email, phone, full_name)
-            )
-            mysql.connection.commit()
+            # Check if user or email already exists
+            if users_collection.find_one({"$or": [{"username": username}, {"email": email}]}):
+                flash('Username or email already exists.', 'danger')
+                return render_template('register.html')
+
+            users_collection.insert_one({
+                "username": username,
+                "password": password_hash,
+                "email": email,
+                "phone": phone,
+                "full_name": full_name
+            })
             flash('Registration successful! Please log in.', 'success')
             return redirect(url_for('login'))
+
         except Exception as e:
-            mysql.connection.rollback()
-            flash('Error: Username or email already exists, or another database issue.', 'danger')
-        finally:
-            cursor.close()
+            print("MongoDB insert error:", e)
+            flash('Database error occurred. Try again.', 'danger')
 
     return render_template('register.html')
 
@@ -62,21 +60,17 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        # Ensure the username and password are valid
         if not username or not password:
             flash('Both fields are required!', 'danger')
             return render_template('login.html')
 
         try:
-            cursor = mysql.connection.cursor()
-            cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
-            user = cursor.fetchone()
+            user = users_collection.find_one({"username": username})
 
-            if user and check_password_hash(user[2], password):  # user[2] is the password hash
-                session['username'] = user[1]
+            if user and check_password_hash(user['password'], password):
+                session['username'] = user['username']
                 flash('Welcome back!', 'success')
 
-                # Launch app.py if not already running
                 try:
                     subprocess.Popen(
                         [sys.executable, os.path.join(os.getcwd(), "app.py")],
@@ -86,16 +80,13 @@ def login():
                 except Exception as e:
                     flash(f"Error launching app.py: {str(e)}", 'danger')
 
-                # Redirect to app.py (Gradio app)
                 return redirect('http://localhost:7860')
 
             else:
                 flash('Invalid credentials. Please try again.', 'danger')
 
         except Exception as e:
-            flash('An error occurred during login. Please try again later.', 'danger')
-        finally:
-            cursor.close()
+            flash('Login failed. Try again.', 'danger')
 
     return render_template('login.html')
 
