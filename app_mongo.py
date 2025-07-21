@@ -82,14 +82,14 @@ def main():
 
         with gr.Row():
             gr.Markdown("### Logout Section")
-            gr.HTML('<button style="padding:10px 20px; background-color:red; color:white; border:none; border-radius:5px;" onclick="window.location.href=\'/logout\'">Logout</button>')
+            gr.HTML('<button style="padding:10px 20px; background-color:red; color:white; border:none; border-radius:5px;" onclick="window.location.href=\'https://ai-verse-complete-project.onrender.com/logout\'">Logout</button>')
 
     return app
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 7860))
     gradio_app = main()
-    gradio_app.launch(server_name="0.0.0.0", server_port=port)
+    gradio_app.launch(server_name="0.0.0.0", server_port=int(os.environ.get("PORT", 7860)))
 
 # Logout Flask app using MongoDB
 from flask import Flask, session, redirect
